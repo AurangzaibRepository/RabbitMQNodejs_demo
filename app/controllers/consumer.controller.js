@@ -2,5 +2,5 @@ const consumerService = require("../services/consumer.service");
 
 exports.get = (req, res) => {
   consumerService.retrieve();
-  res.send("Messages are being retrieved");
+  res.status(200).send("Messages are being retrieved");
 };
