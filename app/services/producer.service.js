@@ -1,4 +1,5 @@
 const amqplib = require("amqplib/callback_api");
+const connection = require("./connection.service");
 
 const queue = "tasks";
 let taskCounter = 0;
@@ -18,10 +19,7 @@ exports.sendMessages = () => {
 };
 
 exports.send = (message) => {
-  amqplib.connect(process.env.RABBITMQ_SERVER, (error, connection) => {
-    connection.createChannel((err, channel1) => {
-      channel1.assertQueue();
-      channel1.sendToQueue(queue, Buffer.from(message));
-    });
+  connection(queue, (error, channel) => {
+    channel.sendToQueue(queue, Buffer.from(message));
   });
 };
