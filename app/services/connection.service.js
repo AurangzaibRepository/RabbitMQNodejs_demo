@@ -1,34 +1,20 @@
 const amqplib = require("amqplib/callback_api");
 
 function createQueueChannel(queue, callback) {
-  function onConnectionCreated(error, connection) {
+  amqplib.connect(process.env.RABBITMQ_SERVER, (error, connection) => {
     if (error) {
       console.log(`Connection error: ${error.message}`);
-      return;
     }
 
-    function onChannelCreated(channelError, channel) {
+    connection.createChannel((channelError, channel) => {
       if (channelError) {
         console.log(`Channel error: ${channelError.message}`);
-        return;
       }
 
-      function onQueueCreated(queueError) {
-        if (queueError) {
-          console.log(`Queue error: ${queueError.message}`);
-          return;
-        }
-
-        callback(null, channel);
-      }
-
-      channel.assertQueue(queue, { durable: true }, onQueueCreated);
-    }
-
-    connection.createChannel(onChannelCreated);
-  }
-
-  amqplib.connect(process.env.RABBITMQ_SERVER, onConnectionCreated);
+      channel.assertQueue(queue);
+      callback(null, channel);
+    });
+  });
 }
 
 module.exports = createQueueChannel;
